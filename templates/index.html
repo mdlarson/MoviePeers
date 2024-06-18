@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoviePeers</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Find Your MoviePeers</h1>
+        <form method="post">
+            <label for="age">Enter your age:</label>
+            <input type="number" id="age" name="age" required>
+            <button type="submit">Submit</button>
+        </form>
+        <p>{{ message }}</p>
+    </div>
+</body>
+
+</html>
