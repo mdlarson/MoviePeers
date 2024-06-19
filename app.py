@@ -27,19 +27,15 @@ app.add_url_rule(
 def index():
     if request.method == 'POST':
         age = int(request.form['age'])
-        # use GraphQL to fetch data
+        # Use GraphQL query to fetch data
         query = f'''
         {{
-            allRoles(filter: {{actorAge: {age}}}) {{
-                edges {{
-                    node {{
-                        actor {{
-                            actorName
-                        }}
-                        movie {{
-                            movieTitle
-                        }}
-                    }}
+            roles(actorAge: {age}) {{
+                actor {{
+                    actorName
+                }}
+                movie {{
+                    movieTitle
                 }}
             }}
         }}
@@ -52,10 +48,10 @@ def index():
         if result.errors:
             return render_template('index.html', message="An error occurred. :(" + str(result.errors), result=None)
 
-        data = result.data.get('allRoles') if result.data else None
+        data = result.data.get('roles') if result.data else None
 
-        if data and data['edges']:
-            node = data['edges'][0]['node']
+        if data:
+            node = data[0]
             message = f"You're about as old as {
                 node['actor']['actorName']} in {node['movie']['movieTitle']}."
         else:
