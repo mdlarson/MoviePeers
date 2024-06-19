@@ -1,5 +1,6 @@
 from flask import Flask
 from models import db, Actor, Movie, Role
+# from sqlalchemy import inspect
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///actors_movies.db'
@@ -24,3 +25,9 @@ with app.app_context():
 
     db.session.add_all([actor1, actor2, movie1, movie2, role1, role2])
     db.session.commit()
+
+    # Use SQLAlchemy inspector to get detailed information about the 'roles' table
+    # inspector = inspect(db.engine)
+    # columns = inspector.get_columns('roles')
+    # for column in columns:
+    #     print("Column: {} Type: {}".format(column['name'], column['type']))
