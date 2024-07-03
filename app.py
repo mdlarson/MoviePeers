@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request
 from flask_graphql import GraphQLView
 from models import db
@@ -8,10 +9,19 @@ app = Flask(__name__,
             template_folder='./templates',
             static_folder='./static')
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///actors_movies.db'
+# Ensure the correct database URI is set
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{
+    os.path.abspath('moviedata.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize the database with the app
 db.init_app(app)
 
+with app.app_context():
+    # Ensure tables are created before the first request
+    db.create_all()
+
+# Add GraphQL endpoint
 app.add_url_rule(
     '/graphql',
     view_func=GraphQLView.as_view(
@@ -22,7 +32,6 @@ app.add_url_rule(
 )
 
 
-# Define app routes
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -40,8 +49,10 @@ def index():
             }}
         }}
         '''
-        result = schema.execute(query)
-
+        result = None
+        with app.app_context():
+            result = schema.execute(query, context_value={
+                                    'session': db.session})
         # Debug result
         print('GraphQL Query Results: ', result)
 
