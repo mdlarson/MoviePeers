@@ -13,7 +13,7 @@ load_dotenv()
 API_KEY = os.getenv('API_KEY')
 BASE_URL = 'https://api.themoviedb.org/3'
 DB_PATH = 'moviedata.db'
-REQUEST_DELAY = 20  # delay in seconds
+REQUEST_DELAY = 10  # delay in seconds
 
 # SQLite Setup
 conn = sqlite3.connect(DB_PATH)
@@ -30,7 +30,7 @@ def create_tables():
                    )
     ''')
     cursor.execute('''
-    CREATE TABLE IF NO EXISTS movies (
+    CREATE TABLE IF NOT EXISTS movies (
                    id INTEGER PRIMARY KEY,
                    movie_title TEXT NOT NULL,
                    release_date TEXT NOT NULL,
@@ -39,7 +39,7 @@ def create_tables():
     ''')
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS roles (
-                   id INTEGER PRIMARY KEY
+                   id INTEGER PRIMARY KEY,
                    actor_id INTEGER,
                    movie_id INTEGER,
                    actor_age INTEGER,
@@ -54,13 +54,13 @@ def clear_tables():
     cursor.execute('DELETE FROM roles')
     cursor.execute('DELETE FROM movies')
     cursor.execute('DELETE FROM actors')
-    conn.committ()
+    conn.commit()
 
 
 def fetch_popular_actors():
     page = 1
     all_actors = []
-    while page < 11:
+    while page < 3:
         print(f'Fetching page {page}...')
         url = f'{BASE_URL}/person/popular'
         params = {'api_key': API_KEY, 'page': page}
