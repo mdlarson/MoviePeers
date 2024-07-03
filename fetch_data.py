@@ -109,7 +109,14 @@ def process_actors(all_actors):
 
     for actor in all_actors:
         actor_details = fetch_actor_details(actor['id'])
+        # Default birthdate if not available
         birthdate = actor_details.get('birthday', '1900-01-01')
+        if not birthdate:
+            birthdate = '1900-01-01'
+
+        # Log actor details for debugging
+        print(f'Processing actor: {actor["name"]}, Birthdate: {birthdate}')
+
         truncated_actor = (actor['id'], actor['name'],
                            birthdate, actor.get('profile_path'))
         actors_batch.append(truncated_actor)
@@ -126,7 +133,7 @@ def process_actors(all_actors):
                 role = (None, actor['id'], movie['id'], actor_age)
                 roles_batch.append(role)
 
-        print(f'Processed actor {actor['name']} and their movies.')
+        print(f'Processed actor {actor["name"]} and their movies.')
 
     return actors_batch, movies_batch, roles_batch
 
