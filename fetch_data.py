@@ -60,7 +60,7 @@ def clear_tables():
 def fetch_popular_actors():
     page = 1
     all_actors = []
-    while page < 3:
+    while page < 2:
         print(f'Fetching page {page}...')
         url = f'{BASE_URL}/person/popular'
         params = {'api_key': API_KEY, 'page': page}
@@ -90,11 +90,16 @@ def fetch_actor_details(person_id):
 
 
 def calculate_age(birthdate, release_date):
-    birth_dt = datetime.strptime(birthdate, '%Y-%m-%d')
-    release_dt = datetime.strptime(release_date, '%Y-%m-%d')
-    age = release_dt.year - birth_dt.year - \
-        ((release_dt.month, release_dt.day) < (birth_dt.month, birth_dt.day))
-    return age
+    if not birthdate or not release_date:  # Check if release_date is None or empty
+        return None
+    try:
+        birth_dt = datetime.strptime(birthdate, '%Y-%m-%d')
+        release_dt = datetime.strptime(release_date, '%Y-%m-%d')
+        age = release_dt.year - birth_dt.year - \
+            ((release_dt.month, release_dt.day) < (birth_dt.month, birth_dt.day))
+        return age
+    except ValueError:
+        return None
 
 
 def process_actors(all_actors):
@@ -116,9 +121,10 @@ def process_actors(all_actors):
             movies_batch.append(truncated_movie)
 
             actor_age = calculate_age(birthdate, movie.get('release_date'))
-            # None for auto-incrementing ID
-            role = (None, actor['id'], movie['id'], actor_age)
-            roles_batch.append(role)
+            if actor_age is not None:
+                # None for auto-incrementing ID
+                role = (None, actor['id'], movie['id'], actor_age)
+                roles_batch.append(role)
 
         print(f'Processed actor {actor['name']} and their movies.')
 
