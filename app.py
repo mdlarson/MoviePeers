@@ -7,11 +7,12 @@ from schema import schema
 # Initialize Flask app
 app = Flask(__name__,
             template_folder='./templates',
-            static_folder='./static')
+            static_folder='./static',
+            instance_relative_config=True)
 
 # Ensure the correct database URI is set
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{
-    os.path.abspath('moviedata.db')}"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+    'DATABASE_URL', f"sqlite:///{os.path.join(app.instance_path, 'moviedata.db')}")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize the database with the app
@@ -42,9 +43,11 @@ def index():
             roles(actorAge: {age}) {{
                 actor {{
                     actorName
+
                 }}
                 movie {{
                     movieTitle
+
                 }}
             }}
         }}
