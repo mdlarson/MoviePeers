@@ -12,7 +12,8 @@ load_dotenv()
 # Configuration
 API_KEY = os.getenv('API_KEY')
 BASE_URL = 'https://api.themoviedb.org/3'
-DB_PATH = 'moviedata.db'
+DB_PATH = os.path.join(os.path.abspath(
+    os.path.dirname(__file__)), 'instance', 'moviedata.db')
 REQUEST_DELAY = 10  # delay in seconds
 
 # SQLite Setup
@@ -60,7 +61,7 @@ def clear_tables():
 def fetch_popular_actors():
     page = 1
     all_actors = []
-    while page < 2:
+    while page < 10:
         print(f'Fetching page {page}...')
         url = f'{BASE_URL}/person/popular'
         params = {'api_key': API_KEY, 'page': page}
