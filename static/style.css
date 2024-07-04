@@ -1,24 +1,95 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    background-color: #ffeb9e;
     display: flex;
+    flex-flow: column nowrap;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
 }
 
-.container {
-    background: white;
-    padding: 2rem;
+header {
+    background-color: #ffda1a;
+    color: #000000;
     border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    text-align: center;
+}
+
+footer {
+    text-align: center;
+    font-size: .75rem;
+    padding: 1rem;
+    margin-top: 20px;
+}
+
+body,
+button,
+input {
+    font-family: "Andale Mono", Arial, sans-serif;
 }
 
 h1 {
+    font-size: 3rem;
     margin-bottom: 1rem;
 }
 
 form {
     margin-bottom: 1rem;
+}
+
+.container {
+    background: white;
+    display: flex;
+    flex-flow: column nowrap;
+    padding: 2rem;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.image-container {
+    background: white;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-around;
+    align-items: center;
+    padding: 2rem;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#actor-image {
+    border: 10px solid #ffda1a;
+    border-radius: 5px;
+    transform: rotate(-2deg);
+    box-shadow: 10px 10px 8px #ffeb9e;
+}
+
+#movie-image {
+    border: 10px solid #ffda1a;
+    border-radius: 5px;
+    transform: rotate(3deg);
+    box-shadow: 10px 10px 8px #ffeb9e;
+}
+
+
+input[type="number"] {
+    padding: 10px;
+    margin: 5px 0;
+    border: 2px solid #abcabc;
+    border-radius: 5px;
+}
+
+.button {
+    background-color: #abcabc;
+    color: #fff;
+    padding: 10px 20px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button:hover {
+    border: 2px solid #ffda1a;
 }
