@@ -16,7 +16,21 @@
             <input type="number" id="age" name="age" required>
             <button type="submit">Submit</button>
         </form>
+        {% if message %}
         <p>{{ message }}</p>
+        {% endif %}
+        {% if result %}
+        <div>
+            <div>
+                <img src="https://image.tmdb.org/t/p/w185{{ result[0]['actor']['imagePath'] }}" alt="photo of actor {{
+                result[0]['actor']['actorName'] }}">
+            </div>
+            <div>
+                <img src="https://image.tmdb.org/t/p/w185{{ result[0]['movie']['posterPath'] }}"
+                    alt="promotional poster for the movie {{ result[0]['movie']['movieTitle'] }}">
+            </div>
+        </div>
+        {% endif %}
     </div>
 </body>
 

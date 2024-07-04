@@ -43,11 +43,11 @@ def index():
             roles(actorAge: {age}) {{
                 actor {{
                     actorName
-
+                    imagePath
                 }}
                 movie {{
                     movieTitle
-
+                    posterPath
                 }}
             }}
         }}
