@@ -28,13 +28,13 @@
                     <div class="image-container">
                         <div>
                             <img id="actor-image"
-                                src="https://image.tmdb.org/t/p/w185{{ result[0]['actor']['imagePath'] }}" alt="photo of actor {{
-                result[0]['actor']['actorName'] }}">
+                                src="https://image.tmdb.org/t/p/w185{{ result['actor']['imagePath'] }}" alt="photo of actor {{
+                result['actor']['actorName'] }}">
                         </div>
                         <div>
                             <img id="movie-image" src=" https://image.tmdb.org/t/p/w185{{
-                                result[0]['movie']['posterPath'] }}"
-                                alt="promotional poster for the movie {{ result[0]['movie']['movieTitle'] }}">
+                                result['movie']['posterPath'] }}"
+                                alt="promotional poster for the movie {{ result['movie']['movieTitle'] }}">
                         </div>
                     </div>
                     {% endif %}
