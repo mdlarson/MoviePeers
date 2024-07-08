@@ -73,7 +73,7 @@ def index():
         else:
             message = "Sorry, we couldn't find a good match."
 
-        return render_template('index.html', message=message, result=node)
+        return render_template('index.html', message=message, result=node, age=age)
     return render_template('index.html', message='', result=None)
 
 
