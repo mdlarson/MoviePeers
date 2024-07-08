@@ -16,7 +16,7 @@
         <section class="form">
             <form method="post">
                 <label for="age">Enter your age:</label>
-                <input type="number" id="age" name="age" value="{{ age }}" required>
+                <input type="number" id="age" name="age" value="{{ age }}" min="1" max="100" required>
                 <button type="submit" class="button"">{{ 'More!' if age else 'Submit' }}</button>
             </form>
         </section>
