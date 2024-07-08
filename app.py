@@ -65,16 +65,18 @@ def index():
 
         data = result.data.get('roles') if result.data else None
 
-        if data:
+        if data and len(data) > 0:
             # Randomly select a role from the list of results
             node = random.choice(data)
             message = f"You're about as old as {
                 node['actor']['actorName']} in {node['movie']['movieTitle']}."
+            return render_template('index.html', message=message, result=node, age=age)
+
         else:
             message = "Sorry, we couldn't find a good match."
+            return render_template('index.html', message=message, result=None, age=age)
 
-        return render_template('index.html', message=message, result=node)
-    return render_template('index.html', message='', result=None)
+    return render_template('index.html', message='', result=None, age=None)
 
 
 if __name__ == '__main__':
