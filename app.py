@@ -15,6 +15,7 @@ app = Flask(__name__,
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
     'DATABASE_URL', f"sqlite:///{os.path.join(app.instance_path, 'moviedata.db')}")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ECHO'] = False  # Suppress SQL logs
 
 # Initialize the database with the app
 db.init_app(app)
@@ -58,7 +59,7 @@ def index():
             result = schema.execute(query, context_value={
                                     'session': db.session})
         # Debug result
-        print('GraphQL Query Results: ', result)
+        # print('GraphQL Query Results: ', result)
 
         if result.errors:
             return render_template('index.html', message="An error occurred. :(" + str(result.errors), result=None)
@@ -80,4 +81,4 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
