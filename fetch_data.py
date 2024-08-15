@@ -1,10 +1,10 @@
 import os
 import sqlite3
 import time
+import logging
 from datetime import datetime
 import requests
 from dotenv import load_dotenv
-
 
 # Load environment variables from .env
 load_dotenv()
@@ -14,7 +14,13 @@ API_KEY = os.getenv('API_KEY')
 BASE_URL = 'https://api.themoviedb.org/3'
 DB_PATH = os.path.join(os.path.abspath(
     os.path.dirname(__file__)), 'instance', 'moviedata.db')
-REQUEST_DELAY = 3  # delay in seconds
+REQUEST_DELAY = 2  # delay in seconds
+PAGES_TO_FETCH = 21
+BATCH_SIZE = 10  # save incremental updates every N pages
+
+# Setup logging
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 # SQLite Setup
 conn = sqlite3.connect(DB_PATH)
@@ -61,50 +67,81 @@ def clear_tables():
 def fetch_popular_actors():
     page = 1
     all_actors = []
-    while page < 1000:
-        print(f'Fetching page {page}...')
+    processed_actor_ids = set()
+
+    while page < PAGES_TO_FETCH:
+        logging.info("Fetching page %s...", page)
         url = f'{BASE_URL}/person/popular'
         params = {'api_key': API_KEY, 'page': page}
 
         try:
             response = requests.get(url, params=params, timeout=10)
-            response.raise_for_status()  # Raise HTTPError for bad responses
+            response.raise_for_status()
             data = response.json()
         except requests.exceptions.RequestException as e:
-            print(f"Request failed: {e}")
+            logging.error("Request failed: %s", e)
             break
 
         if not data['results']:
             break
 
-        all_actors.extend(data['results'])
+        for actor in data['results']:
+            if actor['id'] not in processed_actor_ids:
+                all_actors.append(actor)
+                processed_actor_ids.add(actor['id'])
+
+        if page % BATCH_SIZE == 0:
+            # Process and save the current batch of actors
+            logging.info("Processing batch up to page %s...", page)
+            save_batch(all_actors)
+            all_actors.clear()  # Clear the list after saving
 
         total_pages = data.get('total_pages', 1)
         if page >= total_pages:
             break
 
         page += 1
-        print(f'Waiting for {REQUEST_DELAY} seconds before next fetch...')
-        time.sleep(REQUEST_DELAY)  # wait for specified delay
+        logging.info(
+            "Waiting for %s seconds before next fetch...", REQUEST_DELAY)
+        time.sleep(REQUEST_DELAY)
+
+    # Final save for any remaining actors
+    if all_actors:
+        save_batch(all_actors)
+
     return all_actors
 
 
 def fetch_movie_credits(person_id):
     url = f'{BASE_URL}/person/{person_id}/movie_credits'
     params = {'api_key': API_KEY}
-    response = requests.get(url, params=params, timeout=10)
-    return response.json()
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        time.sleep(REQUEST_DELAY)  # Sleep after each request
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        logging.error(
+            "Failed to fetch movie credits for person ID %s: %s", person_id, e)
+        return {}
 
 
 def fetch_actor_details(person_id):
     url = f'{BASE_URL}/person/{person_id}'
     params = {'api_key': API_KEY}
-    response = requests.get(url, params=params, timeout=10)
-    return response.json()
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        time.sleep(REQUEST_DELAY)  # Sleep after each request
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        logging.error(
+            "Failed to fetch details for person ID %s: %s", person_id, e)
+        return {}
 
 
 def calculate_age(birthdate, release_date):
-    if not birthdate or not release_date:  # Check if release_date is None or empty
+    if not birthdate or not release_date:
         return None
     try:
         birth_dt = datetime.strptime(birthdate, '%Y-%m-%d')
@@ -120,16 +157,20 @@ def process_actors(all_actors):
     actors_batch = []
     movies_batch = []
     roles_batch = []
+    processed_movies = set()
 
     for actor in all_actors:
         actor_details = fetch_actor_details(actor['id'])
-        # Default birthdate if not available
-        birthdate = actor_details.get('birthday', '1900-01-01')
-        if not birthdate:
-            birthdate = '1900-01-01'
+        birthdate = actor_details.get('birthday')
 
-        # Log actor details for debugging
-        print(f'Processing actor: {actor["name"]}, Birthdate: {birthdate}')
+        # Skip actor if birthdate is missing or invalid
+        if not birthdate:
+            logging.info(
+                "Skipping actor %s due to missing birthdate.", actor['name'])
+            continue
+
+        logging.info("Processing actor: %s, Birthdate: %s",
+                     actor['name'], birthdate)
 
         truncated_actor = (actor['id'], actor['name'],
                            birthdate, actor.get('profile_path'))
@@ -137,19 +178,34 @@ def process_actors(all_actors):
 
         credits_data = fetch_movie_credits(actor['id'])
         for movie in credits_data.get('cast', []):
-            truncated_movie = (movie['id'], movie['title'], movie.get(
-                'release_date'), movie.get('poster_path'))
-            movies_batch.append(truncated_movie)
+            if movie['id'] not in processed_movies:
+                truncated_movie = (movie['id'], movie['title'], movie.get(
+                    'release_date'), movie.get('poster_path'))
+                movies_batch.append(truncated_movie)
+                processed_movies.add(movie['id'])
 
             actor_age = calculate_age(birthdate, movie.get('release_date'))
             if actor_age is not None:
-                # None for auto-incrementing ID
                 role = (None, actor['id'], movie['id'], actor_age)
                 roles_batch.append(role)
 
-        print(f'Processed actor {actor["name"]} and their movies.')
+        logging.info("Processed actor %s and their movies.", actor['name'])
 
     return actors_batch, movies_batch, roles_batch
+
+
+def save_batch(all_actors):
+    # Process actors and save to DB
+    actors_batch, movies_batch, roles_batch = process_actors(all_actors)
+
+    logging.info('Batch inserting actors...')
+    batch_insert('actors', actors_batch)
+
+    logging.info('Batch inserting movies...')
+    batch_insert('movies', movies_batch)
+
+    logging.info('Batch inserting roles...')
+    batch_insert('roles', roles_batch)
 
 
 def batch_insert(table, data):
@@ -164,22 +220,10 @@ def main():
     create_tables()
     clear_tables()
 
-    print('Fetching all popular actors...')
-    all_actors = fetch_popular_actors()
+    logging.info('Fetching all popular actors...')
+    fetch_popular_actors()
 
-    print('Processing actors and their movie credits...')
-    actors_batch, movies_batch, roles_batch = process_actors(all_actors)
-
-    print('Batch inserting actors...')
-    batch_insert('actors', actors_batch)
-
-    print('Batch inserting movies...')
-    batch_insert('movies', movies_batch)
-
-    print('Batch inserting roles...')
-    batch_insert('roles', roles_batch)
-
-    print('Data refresh complete.')
+    logging.info('Data refresh complete.')
 
 
 if __name__ == '__main__':
