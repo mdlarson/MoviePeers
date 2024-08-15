@@ -32,18 +32,19 @@ class Query(graphene.ObjectType):
     def resolve_roles(self, info, actor_age=None):
         session = info.context['session']  # Get session from context
         query = Role.get_query(info)
-        print("Resolving roles with actor_age:", actor_age)  # Debug print
+        # print("Resolving roles with actor_age:", actor_age)
         if actor_age is not None:
-            print("Query before filter:", query)
+            # print("Query before filter:", query)
             if hasattr(RoleModel, 'actor_age'):
-                print("Role model has attribute 'actor_age'")
+                # print("Role model has attribute 'actor_age'")
                 query = query.filter(RoleModel.actor_age == actor_age)
             else:
-                print("Role model does NOT have attribute 'actor_age'")
-            print("Query after filter:", query)
+                pass
+                # print("Role model does NOT have attribute 'actor_age'")
+            # print("Query after filter:", query)
 
         roles = query.with_session(session).all()
-        print(f"Roles found: {roles}")
+        # print(f"Roles found: {roles}")
         return roles
 
 
