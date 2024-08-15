@@ -10,35 +10,40 @@
 
 <body>
     <main>
-        <header>
-            <h1>Find Your MoviePeers</h1>
-            <h3>(actor) was (your age) in (movie)</h3>
-        </header>
+        <a href="/">
+            <header>
+                <h1>Find Your MoviePeers</h1>
+                <h3>(actor) was (your age) in (movie)</h3>
+            </header>
+        </a>
         <section class="form">
             <form method="post">
                 <label for="age">Enter your age:</label>
                 <input type="number" id="age" name="age" value="{{ age }}" min="1" max="100" required>
-                <button type="submit" class="button"">{{ 'More!' if age else 'Submit' }}</button>
+                <button type="submit" class="button">{{ 'More!' if age else 'Find My MoviePeers!' }}</button>
             </form>
         </section>
-        <section class=" response">
-                    {% if message %}
-                    <p>{{ message }}</p>
-                    {% endif %}
-                    {% if result %}
-                    <div class="image-container">
-                        <div>
-                            <img id="actor-image"
-                                src="https://image.tmdb.org/t/p/w185{{ result['actor']['imagePath'] }}" alt="photo of actor {{
-                result['actor']['actorName'] }}">
-                        </div>
-                        <div>
-                            <img id="movie-image" src=" https://image.tmdb.org/t/p/w185{{
-                                result['movie']['posterPath'] }}"
-                                alt="promotional poster for the movie {{ result['movie']['movieTitle'] }}">
-                        </div>
+        <section class="response">
+            <div class="content-container">
+                {% if message %}
+                <p class="message">{{ message }}</p>
+                {% endif %}
+
+                {% if result %}
+                <div class="image-container">
+                    <div>
+                        <img id="actor-image" src="https://image.tmdb.org/t/p/w185{{ result['actor']['imagePath'] }}"
+                            alt="photo of actor {{
+                    result['actor']['actorName'] }}">
                     </div>
-                    {% endif %}
+                    <div>
+                        <img id="movie-image" src=" https://image.tmdb.org/t/p/w185{{
+                                    result['movie']['posterPath'] }}"
+                            alt="promotional poster for the movie {{ result['movie']['movieTitle'] }}">
+                    </div>
+                </div>
+                {% endif %}
+            </div>
         </section>
     </main>
     <footer>
