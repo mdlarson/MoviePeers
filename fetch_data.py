@@ -14,7 +14,7 @@ API_KEY = os.getenv('API_KEY')
 BASE_URL = 'https://api.themoviedb.org/3'
 DB_PATH = os.path.join(os.path.abspath(
     os.path.dirname(__file__)), 'instance', 'moviedata.db')
-REQUEST_DELAY = 10  # delay in seconds
+REQUEST_DELAY = 3  # delay in seconds
 
 # SQLite Setup
 conn = sqlite3.connect(DB_PATH)
@@ -61,15 +61,28 @@ def clear_tables():
 def fetch_popular_actors():
     page = 1
     all_actors = []
-    while page < 10:
+    while page < 1000:
         print(f'Fetching page {page}...')
         url = f'{BASE_URL}/person/popular'
         params = {'api_key': API_KEY, 'page': page}
-        response = requests.get(url, params=params, timeout=10)
-        data = response.json()
+
+        try:
+            response = requests.get(url, params=params, timeout=10)
+            response.raise_for_status()  # Raise HTTPError for bad responses
+            data = response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Request failed: {e}")
+            break
+
         if not data['results']:
             break
+
         all_actors.extend(data['results'])
+
+        total_pages = data.get('total_pages', 1)
+        if page >= total_pages:
+            break
+
         page += 1
         print(f'Waiting for {REQUEST_DELAY} seconds before next fetch...')
         time.sleep(REQUEST_DELAY)  # wait for specified delay
