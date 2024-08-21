@@ -1,3 +1,4 @@
+archives/
 .env
 .venv/
 __pycache__/
