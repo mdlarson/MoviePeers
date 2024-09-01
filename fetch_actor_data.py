@@ -15,9 +15,8 @@ API_KEY = os.getenv('API_KEY')
 BASE_URL = 'https://api.themoviedb.org/3'
 DB_PATH = os.path.join(os.path.abspath(
     os.path.dirname(__file__)), 'instance', 'moviedata.db')
-REQUEST_DELAY = 2  # delay in seconds
-PAGES_TO_FETCH = 21
-BATCH_SIZE = 10  # save incremental updates every N pages
+REQUEST_DELAY = 1  # delay in seconds
+BATCH_SIZE = 20  # save incremental updates after N actors
 
 # Setup logging
 logging.basicConfig(level=logging.INFO,
@@ -113,7 +112,7 @@ def calculate_age(birthdate, release_date):
 
 def process_actors():
     '''Assemble actor data for database insertion.'''
-    logging.info('Reviewing list of actors...')
+    logging.info("Reviewing list of actors...")
     with open('popular_actors.txt', 'r', encoding='utf-8') as file:
         actor_id_list = [line.strip() for line in file]
 
@@ -122,20 +121,21 @@ def process_actors():
     roles_batch = []
     processed_movies = set()
 
-    for actor_id in actor_id_list:
+    for idx, actor_id in enumerate(actor_id_list, start=1):
         # get actor details
         logging.info("Fetching data for actor ID %s...", actor_id)
         actor_details = fetch_actor_details(actor_id)
 
+        # skip actor if birthdate is missing or invalid
+        birthdate = actor_details.get('birthday')
+        if not birthdate:
+            logging.info(
+                "Skipping %s, missing birthdate.", person_name)
+            continue
+
         person_id = actor_details.get('id')
         person_name = actor_details.get('name')
         profile_path = actor_details.get('profile_path')
-        birthdate = actor_details.get('birthday')
-        # skip actor if birthdate is missing or invalid
-        if not birthdate:
-            logging.info(
-                "Skipping actor %s due to missing birthdate.", person_name)
-            continue
 
         # append actor details to batch
         logging.info("Processing actor: %s, Birthdate: %s",
@@ -147,9 +147,13 @@ def process_actors():
 
         for movie in credits_data.get('cast', []):
             if movie['id'] not in processed_movies:
+                movie_release_date = movie.get('release_date')
+                if not movie_release_date:
+                    logging.info("Skipping movie, missing release date.")
+                    continue
+
                 movie_id = movie.get('id')
                 movie_title = movie.get('title')
-                movie_release_date = movie.get('release_date')
                 movie_poster_path = movie.get('poster_path')
 
                 movies_batch.append(
@@ -163,7 +167,22 @@ def process_actors():
 
         logging.info("Done processing %s and their movies.", person_name)
 
-    return actors_batch, movies_batch, roles_batch
+        # save batches to database every BATCH_SIZE
+        if idx % BATCH_SIZE == 0:
+            logging.info("Saving batch of size %d...", BATCH_SIZE)
+            save_batch(actors_batch, movies_batch, roles_batch)
+
+            # clear batches after saving
+            actors_batch.clear()
+            movies_batch.clear()
+            roles_batch.clear()
+
+    # save remaining data after loop
+    if actors_batch or movies_batch or roles_batch:
+        logging.info("Saving final batch...")
+        save_batch(actors_batch, movies_batch, roles_batch)
+
+    return True
 
 
 def save_batch(actors_batch, movies_batch, roles_batch):
@@ -194,12 +213,9 @@ def main():
     create_tables()
     logging.info("Clearing tables...")
     clear_tables()
-
     logging.info("Fetching all popular actors...")
-    actors_batch, movies_batch, roles_batch = process_actors()
-    save_batch(actors_batch, movies_batch, roles_batch)
-
-    logging.info("Data refresh complete.")
+    process_actors()
+    logging.info("Data refresh complete!")
 
 
 if __name__ == '__main__':
