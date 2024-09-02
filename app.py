@@ -69,8 +69,8 @@ def index():
         if data and len(data) > 0:
             # Randomly select a role from the list of results
             node = random.choice(data)
-            message = f"You're about as old as {
-                node['actor']['actorName']} in {node['movie']['movieTitle']}."
+            message = f"You're about as old as...<br>\
+            {node['actor']['actorName']} in <i>{node['movie']['movieTitle']}</i>."
             return render_template('index.html', message=message, result=node, age=age)
 
         else:

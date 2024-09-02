@@ -6,6 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MoviePeers</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="description" content="Discover actors and their roles when they were your age.">
+
+    <!-- Open Graph / Social Stuff -->
+    <meta property="og:url" content="https://www.moviepeers.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="MoviePeers: Actors in roles when they were your age.">
+    <meta property="og:description" content="Discover actors and their roles when they were your age.">
+    <meta property="og:image" content="{{ url_for('static', filename='banner.png') }}">
+    <meta property="og:image:width" content="1600">
+    <meta property="og:image:height" content="800">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:creator" content="@mlarson">
+    <meta property="twitter:domain" content="https://www.moviepeers.com">
+    <meta property="twitter:url" content="https://www.moviepeers.com">
+    <meta name="twitter:title" content="MoviePeers: Actors in roles when they were your age.">
+    <meta name="twitter:description" content="MoviePeers: Discover actors and their roles when they were your age.">
+    <meta name="twitter:image" content="{{ url_for('static', filename='banner.png') }}">
 </head>
 
 <body>
@@ -26,7 +44,7 @@
         <section class="response">
             <div class="content-container">
                 {% if message %}
-                <p class="message">{{ message }}</p>
+                <p class="message">{{ message | safe }}</p>
                 {% endif %}
 
                 {% if result %}
@@ -47,8 +65,10 @@
         </section>
     </main>
     <footer>
-        <p>This website uses <a href="https://www.themoviedb.org/">TMDB</a> and the TMDB APIs but is not endorsed,
-            certified, or otherwise approved by TMDB.
+        <p>Created by <a href="https://x.com/mlarson">@mlarson</a>, inspired by <a
+                href="https://x.com/ModeledBehavior/status/1632466023243710465">a tweet</a>. This website uses <a
+                href="https://www.themoviedb.org/">TMDB</a> and the TMDB APIs but is not endorsed, certified, or
+            otherwise approved by TMDB.
         </p>
     </footer>
 </body>
