@@ -1,7 +1,10 @@
 body {
     /* Box Model */
-    margin: 0;
+    margin: 0 auto;
     height: 100vh;
+    width: 100%;
+    max-width: 800px;
+    overflow-x: hidden;
 
     /* Positioning */
     display: flex;
@@ -14,6 +17,10 @@ body {
 
     /* Visual */
     background-color: #ffeb9e;
+}
+
+main {
+    overflow-x: hidden;
 }
 
 header {
@@ -35,6 +42,16 @@ footer {
     margin-top: 20px;
 }
 
+footer p {
+    font-size: 0.75rem;
+}
+
+@media (max-width: 600px) {
+    footer p {
+        font-size: 0.65rem;
+    }
+}
+
 body,
 button,
 label,
@@ -53,13 +70,33 @@ h1 {
     margin-bottom: 1rem;
 }
 
+h3 {
+    font-size: 1.5rem;
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    h3 {
+        font-size: 1.2rem;
+    }
+}
+
 p.message {
     font-size: 120%;
 }
 
 form {
     /* Box Model */
-    margin-bottom: 1rem;
+    margin-bottom: .5rem;
+}
+
+@media (max-width: 600px) {
+    form {
+        padding: 0.5rem;
+    }
 }
 
 img {
@@ -105,6 +142,7 @@ a:active {
     max-width: 600px;
     border-radius: 5px;
     box-sizing: border-box;
+    overflow: visible;
 
     /* Visual */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -117,14 +155,39 @@ a:active {
     align-items: center;
 }
 
+@media (min-width: 601px) {
+    .image-container {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .response,
+    .image-container {
+        padding: 0.5rem;
+    }
+}
+
 #actor-image,
 #movie-image {
     /* Box Model */
+    /* max-width: 45%; */
     border: 10px solid #ffda1a;
     border-radius: 5px;
 
     /* Visual */
     box-shadow: 10px 10px 8px #ffeb9e;
+    transform-origin: center;
+}
+
+@media (max-width: 600px) {
+
+    #actor-image,
+    #movie-image {
+        max-width: 90%;
+    }
 }
 
 #actor-image {
