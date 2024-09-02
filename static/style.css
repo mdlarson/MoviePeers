@@ -212,6 +212,10 @@ input[type="number"] {
     border: 2px solid #ffda1a;
 }
 
+input:hover {
+    border: 2px solid #000;
+}
+
 .button {
     /* Box Model */
     padding: 10px 20px;
@@ -220,6 +224,7 @@ input[type="number"] {
 
     /* Visual */
     background-color: #ffda1a;
+    border: 2px solid #ffda1a;
     color: #000;
     border: none;
     cursor: pointer;
