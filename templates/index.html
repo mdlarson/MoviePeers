@@ -6,6 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MoviePeers</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="description" content="Discover actors and their roles when they were your age.">
+
+    <!-- Open Graph / Social Stuff -->
+    <meta property="og:url" content="https://www.moviepeers.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="MoviePeers: Actors in roles when they were your age.">
+    <meta property="og:description" content="Discover actors and their roles when they were your age.">
+    <meta property="og:image" content="{{ url_for('static', filename='banner.png') }}">
+    <meta property="og:image:width" content="1600">
+    <meta property="og:image:height" content="800">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:creator" content="@mlarson">
+    <meta property="twitter:domain" content="https://www.moviepeers.com">
+    <meta property="twitter:url" content="https://www.moviepeers.com">
+    <meta name="twitter:title" content="MoviePeers: Actors in roles when they were your age.">
+    <meta name="twitter:description" content="MoviePeers: Discover actors and their roles when they were your age.">
+    <meta name="twitter:image" content="{{ url_for('static', filename='banner.png') }}">
 </head>
 
 <body>
