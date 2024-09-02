@@ -112,6 +112,10 @@ a {
     color: inherit;
 }
 
+footer a {
+    text-decoration: underline dotted;
+}
+
 a:visited,
 a:hover,
 a:active {
